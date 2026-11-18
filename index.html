@@ -1,0 +1,1341 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Cornixタイピング練習</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#eceeeb;
+        --panel:#ffffff;
+        --panel2:#f5f6f3;
+        --ink:#20261f;
+        --muted:#6a7268;
+        --line:#d5d9d2;
+        --accent:#d9481f;
+        --accent-ink:#ffffff;
+        --good:#0e7c55;
+        --bad:#d92c2c;
+        --case:#2b2f2c;
+        --case-edge:#171917;
+        --key-edge:rgba(0,0,0,.18);
+        --f-pinky:#f4c3cf;
+        --f-ring:#f7d9ae;
+        --f-middle:#f3e5a1;
+        --f-index:#bfe3c0;
+        --f-thumb:#bcd9f2;
+        --next-ring:#d9481f;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#131614;
+          --panel:#1d211e;
+          --panel2:#242824;
+          --ink:#e8eae6;
+          --muted:#9aa398;
+          --line:#343a35;
+          --accent:#ff6a3d;
+          --accent-ink:#1a120c;
+          --good:#3ecf97;
+          --bad:#ff6b6b;
+          --case:#262a27;
+          --case-edge:#0c0e0c;
+          --key-edge:rgba(0,0,0,.5);
+          --f-pinky:#5d3742;
+          --f-ring:#5f4930;
+          --f-middle:#5c532e;
+          --f-index:#33503a;
+          --f-thumb:#324a63;
+          --next-ring:#ff6a3d;
+        }
+      }
+      *{box-sizing:border-box}
+      html,body{margin:0;padding:0}
+      body{
+        background:var(--bg);
+        color:var(--ink);
+        font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic UI",sans-serif;
+        -webkit-font-smoothing:antialiased;
+      }
+      button,select{font-family:inherit;min-height:44px}
+      .wrap{max-width:1020px;margin:0 auto;padding:18px 14px 40px}
+      .mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+      /* --- intro --- */
+      .intro{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-bottom:14px}
+      .intro h1{font-size:20px;font-weight:900;margin:0;letter-spacing:.02em}
+      .intro p{margin:0;color:var(--muted);font-size:13px;line-height:1.6;flex-basis:100%}
+      .ime-note{
+        display:inline-flex;align-items:center;gap:6px;
+        background:var(--panel);border:1px solid var(--line);border-radius:999px;
+        padding:6px 12px;font-size:12.5px;font-weight:700;
+      }
+      .ime-note b{color:var(--accent)}
+      .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block}
+      .ime-alert{
+        background:#fff3f0;border:1.5px solid var(--bad);color:#8f1d1d;border-radius:10px;
+        padding:12px 14px;margin-bottom:12px;font-size:14px;font-weight:700;line-height:1.6;
+      }
+      .ime-alert[hidden]{display:none}
+      .ime-alert strong{color:var(--bad)}
+      @media (prefers-color-scheme: dark){
+        .ime-alert{background:#3a1f1c;color:#ffd9d4;border-color:var(--bad)}
+        .ime-alert strong{color:#ffb3ab}
+      }
+
+      /* --- options --- */
+      .options{
+        display:flex;flex-wrap:wrap;gap:10px;align-items:end;
+        background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;
+      }
+      .field{display:flex;flex-direction:column;gap:4px;flex:1 1 170px}
+      .field label{font-size:11.5px;font-weight:700;color:var(--muted)}
+      .field select{
+        width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);
+        background:var(--panel2);color:var(--ink);font-size:14px;font-weight:700;
+      }
+      .btn{
+        border:0;border-radius:9px;padding:10px 18px;cursor:pointer;font-weight:900;font-size:14.5px;
+        background:var(--accent);color:var(--accent-ink);
+      }
+      .btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+      .btn:active{transform:translateY(1px)}
+      label.btn{display:inline-flex;align-items:center;cursor:pointer;min-height:44px}
+      .vil-status{flex-basis:100%;font-size:12.5px;font-weight:700;color:var(--muted);line-height:1.6}
+      .vil-status:empty{display:none}
+      .vil-status.err{color:var(--bad)}
+      .vil-note{flex-basis:100%;font-size:11.5px;color:var(--muted);line-height:1.6}
+      .vil-note:empty{display:none}
+
+      /* --- stats --- */
+      .stats{
+        display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px;
+      }
+      .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 6px;text-align:center}
+      .stat .v{font-size:19px;font-weight:900;line-height:1.15}
+      .stat .l{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:2px}
+      @media (max-width:560px){ .stat .v{font-size:15px} }
+
+      /* --- prompt --- */
+      .prompt-card{
+        background:var(--panel);border:1px solid var(--line);border-radius:14px;
+        padding:20px 18px 16px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden;
+      }
+      .progress{position:absolute;left:0;top:0;height:4px;background:var(--accent);width:0%;transition:width .15s}
+      .prompt-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:8px}
+      .prompt-main{font-size:clamp(26px,5.4vw,40px);font-weight:900;line-height:1.5;letter-spacing:.06em;word-break:break-all}
+      .prompt-main .ch{color:var(--muted);opacity:.55;border-bottom:3px solid transparent}
+      .prompt-main .ch.done{color:var(--good);opacity:1}
+      .prompt-main .ch.cur{color:var(--ink);opacity:1;border-bottom:3px solid var(--accent)}
+      .prompt-guide{margin-top:8px;font-size:clamp(15px,3vw,20px);letter-spacing:.14em;word-break:break-all}
+      .prompt-guide .ch{color:var(--muted);opacity:.5}
+      .prompt-guide .ch.done{color:var(--good);opacity:1}
+      .prompt-guide .ch.cur{color:var(--accent);opacity:1;font-weight:600}
+      .status-line{margin-top:12px;font-size:14px;font-weight:700;min-height:22px}
+      .status-line .kbd{
+        display:inline-block;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;
+        padding:1px 9px;background:var(--panel2);font-family:"IBM Plex Mono",monospace;font-size:13px;
+      }
+      .flash-bad{animation:cardShake .3s}
+      @keyframes cardShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+      /* --- keyboard --- */
+      .kb-scroll{width:100%}
+      .keyboard{
+        display:flex;justify-content:center;gap:clamp(10px,4vw,54px);
+        background:var(--case);border-radius:22px;padding:clamp(22px,4vw,34px) clamp(10px,3vw,26px) clamp(14px,3vw,22px);
+        box-shadow:0 10px 0 var(--case-edge), 0 22px 34px rgba(0,0,0,.22);
+        position:relative;
+      }
+      .half{width:min(46%,380px);position:relative}
+      .half.left{transform:rotate(-4deg)}
+      .half.right{transform:rotate(4deg)}
+      .dial{
+        position:absolute;top:-14px;width:clamp(26px,5vw,38px);height:clamp(26px,5vw,38px);border-radius:50%;
+        background:radial-gradient(circle at 35% 32%, #6a706a, #333733 55%, #262926 100%);
+        background-color:#3a3e3a;border:2px solid #171917;box-shadow:inset 0 2px 4px rgba(255,255,255,.25), 0 3px 6px rgba(0,0,0,.4);
+        z-index:3;
+      }
+      .half.left .dial{left:-4px}
+      .half.right .dial{right:-4px}
+      .dial::after{content:"";position:absolute;left:50%;top:3px;width:3px;height:34%;margin-left:-1.5px;border-radius:2px;background:#e8eae6}
+      .rows{display:flex;flex-direction:column;gap:clamp(4px,.9vw,7px)}
+      .krow{display:flex;gap:clamp(3px,.8vw,6px)}
+      .key{
+        flex:1 1 0;min-width:0;aspect-ratio:.92;
+        border-radius:clamp(5px,1vw,9px);
+        border:1px solid var(--key-edge);
+        box-shadow:0 3px 0 var(--key-edge);
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+        position:relative;color:var(--ink);user-select:none;
+        transition:transform .06s, box-shadow .06s, outline-color .06s;
+        outline:3px solid transparent;outline-offset:1px;
+      }
+      .key .leg{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;font-size:clamp(9px,2.1vw,15px);line-height:1.1;text-align:center;padding:0 1px;word-break:break-all}
+      .key .leg.small{font-size:clamp(6.5px,1.5vw,10px);letter-spacing:-.02em}
+      .key.f-pinky{background:var(--f-pinky)}
+      .key.f-ring{background:var(--f-ring)}
+      .key.f-middle{background:var(--f-middle)}
+      .key.f-index{background:var(--f-index)}
+      .key.f-thumb{background:var(--f-thumb)}
+      .key .bump{position:absolute;bottom:12%;left:50%;transform:translateX(-50%);width:34%;height:3px;border-radius:2px;background:currentColor;opacity:.55}
+      .key.next{outline-color:var(--next-ring);transform:translateY(-4px);box-shadow:0 7px 0 var(--key-edge);z-index:2}
+      .key.hit{animation:keyHit .22s}
+      @keyframes keyHit{0%{filter:brightness(1.5)}100%{filter:brightness(1)}}
+      .key.err{animation:keyErr .3s}
+      @keyframes keyErr{0%,100%{transform:translateX(0);background:var(--bad);color:#fff}25%{transform:translateX(-3px);background:var(--bad);color:#fff}75%{transform:translateX(3px);background:var(--bad);color:#fff}}
+      .thumbrow{display:flex;gap:clamp(3px,.8vw,6px);margin-top:clamp(8px,1.6vw,13px);width:64%}
+      .half.left .thumbrow{margin-left:auto;transform:rotate(-9deg);transform-origin:right top}
+      .half.right .thumbrow{margin-right:auto;transform:rotate(9deg);transform-origin:left top}
+      .thumbrow .key{aspect-ratio:1.25}
+      /* --- bottom + thumb low band (actual Cornix layout) --- */
+      .lowrow{display:flex;gap:clamp(3px,.8vw,6px);margin-top:clamp(9px,1.8vw,14px)}
+      .lowrow .key{aspect-ratio:1.18}
+      .lowrow .key.spacekey{flex:1.7 1 0}
+      .lowrow .key.thumbkey{transform:translateY(-3px)}
+      .key .leg.ghost{opacity:.35}
+      .key.mo-held{outline-color:var(--next-ring)}
+      /* --- layer switch bar --- */
+      .layerbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+      .layerbar .lb-label{font-size:12px;font-weight:700;color:var(--muted)}
+      .lbtn{
+        border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;
+        padding:6px 14px;cursor:pointer;font-weight:900;font-size:13px;min-height:38px;
+      }
+      .lbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+      .layer-note{font-size:13px;font-weight:700;color:var(--accent)}
+      .layer-note:empty{display:none}
+      @media (max-width:560px){
+        .half.left{transform:rotate(-2.5deg)} .half.right{transform:rotate(2.5deg)}
+        .key{box-shadow:0 2px 0 var(--key-edge)}
+      }
+
+      /* --- finger legend --- */
+      .finger-legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin:16px 4px 0;font-size:12px;color:var(--muted);font-weight:700}
+      .finger-legend .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--key-edge)}
+      .sw.pinky{background:var(--f-pinky)} .sw.ring{background:var(--f-ring)} .sw.middle{background:var(--f-middle)} .sw.index{background:var(--f-index)} .sw.thumb{background:var(--f-thumb)}
+
+      /* --- results --- */
+      .results{
+        display:none;background:var(--panel);border:1px solid var(--line);border-radius:14px;
+        padding:20px 18px;margin-bottom:16px;text-align:center;
+      }
+      .results.show{display:block}
+      .results h2{margin:0 0 4px;font-size:19px;font-weight:900}
+      .results .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+      .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+      @media (max-width:560px){.rgrid{grid-template-columns:repeat(2,1fr)}}
+      .rcell{background:var(--panel2);border-radius:10px;padding:12px 6px}
+      .rcell .v{font-size:24px;font-weight:900}
+      .rcell .v small{font-size:13px;color:var(--muted)}
+      .rcell .l{font-size:11px;color:var(--muted);font-weight:700;margin-top:2px}
+      .note{font-size:12px;color:var(--muted);line-height:1.7;text-align:center;margin-top:6px}
+      .sym-note{margin-top:8px;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.03em}
+      @media (prefers-reduced-motion: reduce){
+        .key.hit,.key.err,.flash-bad{animation:none}
+        .key,.progress{transition:none}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="intro">
+        <h1>Cornixタイピング練習</h1>
+        <span class="ime-note"><span class="dot"></span>始める前に IME を OFF（半角英数）にしてください <b>※日本語入力のままだと判定できません</b></span>
+        <p>実物の Cornix（Jezail Funder Cornix / 48キー・左右分割）を接続して打つ練習です。画面の配列は Cornix 純正デフォルト（レイヤー0／レイヤー1）です。自分の配列で練習したいときは、下の設定から自分の .vil ファイルを読み込むと、この画面の配列もその場で変わります。キーはクリックではなく、実際のキーボード入力で判定します。次に打つキーは画面の Cornix 上で光ります。</p>
+      </div>
+
+      <div class="options">
+        <div class="field">
+          <label for="timeSelect">制限時間（時間切れまで打ち続ける）</label>
+          <select id="timeSelect">
+            <option value="0">なし（お題を最後まで）</option>
+            <option value="60">1分</option>
+            <option value="120">2分</option>
+            <option value="180">3分</option>
+            <option value="300">5分</option>
+          </select>
+        </div>
+        <button class="btn" type="button" id="restartBtn">はじめから</button>
+        <label class="btn ghost" for="vilFileInput">キーマップ（.vil）を読み込む</label>
+        <input type="file" id="vilFileInput" accept=".vil,application/json" hidden />
+        <button class="btn ghost" type="button" id="vilResetBtn">Cornixデフォルトに戻す</button>
+        <div class="vil-status" id="vilStatus" role="status" aria-live="polite"></div>
+        <div class="vil-note" id="vilStorageNote"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="v mono" id="stTime">0:00</div><div class="l" id="stTimeLabel">経過時間</div></div>
+        <div class="stat"><div class="v mono" id="stCorrect">0</div><div class="l">正タイプ</div></div>
+        <div class="stat"><div class="v mono" id="stMiss">0</div><div class="l">誤タイプ</div></div>
+        <div class="stat"><div class="v mono" id="stAcc">—</div><div class="l">正タイプ率</div></div>
+        <div class="stat"><div class="v mono" id="stProg">0 / 0</div><div class="l">お題</div></div>
+      </div>
+
+      <div class="results" id="results">
+        <h2>結果</h2>
+        <div class="sub" id="resultSub"></div>
+        <div class="rgrid">
+          <div class="rcell"><div class="v mono" id="rTotal">0</div><div class="l">入力文字数</div></div>
+          <div class="rcell"><div class="v mono" id="rCorrect">0</div><div class="l">正タイプ数</div></div>
+          <div class="rcell"><div class="v mono" id="rMiss">0</div><div class="l">誤タイプ数</div></div>
+          <div class="rcell"><div class="v mono" id="rAcc">0<small>%</small></div><div class="l">正タイプ率</div></div>
+          <div class="rcell"><div class="v mono" id="rTime">0:00</div><div class="l">経過時間</div></div>
+          <div class="rcell"><div class="v mono" id="rSpeed">0</div><div class="l">タイプ数 / 分</div></div>
+        </div>
+        <button class="btn" type="button" id="againBtn">もう一度（スペースでも開始）</button>
+      </div>
+
+      <div class="ime-alert" id="imeAlert" role="alert" aria-live="polite" hidden>
+        <strong>日本語入力（IME）がONになっています。OFFにしてください</strong><br />
+        IMEを半角英数に切り替えてから打ち直してください。この間の入力はミスとして数えていません。
+      </div>
+
+      <div class="prompt-card" id="promptCard">
+        <div class="progress" id="progressBar"></div>
+        <div class="prompt-meta"><span id="promptKind"></span><span id="promptCount"></span></div>
+        <div class="prompt-main" id="promptMain"></div>
+        <div class="prompt-guide mono" id="promptGuide"></div>
+        <div class="status-line" id="statusLine"><span class="kbd">Space</span> キーを押すと開始します</div>
+        <div class="sym-note">記号の打ち方： 、= , キー ／ 。= . キー ／ ー= MO(2)を押しながら H キー（レイヤー2の -） ／ ！= Shift+1 ／ ？= Shift+/ ／ 数字 = MO(1)を押しながら上段キー</div>
+      </div>
+
+      <div class="layerbar">
+        <span class="lb-label">表示レイヤー</span>
+        <button class="lbtn" type="button" id="layer0Btn" aria-pressed="true">レイヤー0</button>
+        <button class="lbtn" type="button" id="layer1Btn" aria-pressed="false">レイヤー1（MO(1)押下時）</button>
+        <span class="layer-note" id="layerNote"></span>
+      </div>
+
+      <div class="kb-scroll">
+        <div class="keyboard" id="keyboard" aria-hidden="true"></div>
+      </div>
+      <div class="finger-legend">
+        <span><span class="sw pinky"></span>小指</span>
+        <span><span class="sw ring"></span>薬指</span>
+        <span><span class="sw middle"></span>中指</span>
+        <span><span class="sw index"></span>人差し指</span>
+        <span><span class="sw thumb"></span>親指</span>
+        <span>F / J キーの下線がホームポジションの突起です</span>
+      </div>
+      <p class="note" id="layoutNote">表示は Cornix 純正デフォルトです。レイヤー0の右中段に ; と ' があります。MO(1) は左親指、MO(2) は右親指、Space は左親指、Enter は右親指にあります。左ダイヤルは音量（押し込み＝Caps Lock）、右ダイヤルは PageUp/PageDown（押し込み＝ミュート）です。ー（-）はレイヤー2の H の位置にあります。</p>
+    </div>
+
+    <script>
+      "use strict";
+      /* ================= keyboard layout: user's actual Vial keymap (layout.vil) ================= */
+      // leg0 = layer 0 legend, leg1 = layer 1 legend (null = transparent: layer 0 shows through, ghosted)
+      // ch0/ch1 = character produced on that layer (transparent keys fall back to ch0 on layer 1)
+      // code = KeyboardEvent.code on layer 0, code1 = code sent while MO(1) is held
+      var LEFT = [
+        [ {leg0:"Tab", leg1:"Esc", code:"Tab", code1:"Escape", ch0:null, ch1:null, f:"pinky"},
+          {leg0:"Q", leg1:"1", code:"KeyQ", code1:"Digit1", ch0:"q", ch1:"1", f:"pinky"},
+          {leg0:"W", leg1:"2", code:"KeyW", code1:"Digit2", ch0:"w", ch1:"2", f:"ring"},
+          {leg0:"E", leg1:"3", code:"KeyE", code1:"Digit3", ch0:"e", ch1:"3", f:"middle"},
+          {leg0:"R", leg1:"4", code:"KeyR", code1:"Digit4", ch0:"r", ch1:"4", f:"index"},
+          {leg0:"T", leg1:"5", code:"KeyT", code1:"Digit5", ch0:"t", ch1:"5", f:"index"} ],
+        [ {leg0:"MO(1)", leg1:"MO(1)", code:null, code1:null, ch0:null, ch1:null, f:"pinky", mo:1},
+          {leg0:"A", leg1:null, code:"KeyA", ch0:"a", f:"pinky"},
+          {leg0:"S", leg1:null, code:"KeyS", ch0:"s", f:"ring"},
+          {leg0:"D", leg1:null, code:"KeyD", ch0:"d", f:"middle"},
+          {leg0:"F", leg1:";", code:"KeyF", code1:"Semicolon", ch0:"f", ch1:";", f:"index", bump:true},
+          {leg0:"G", leg1:"-", code:"KeyG", code1:"Minus", ch0:"g", ch1:"-", f:"index"} ],
+        [ {leg0:"Shift", leg1:null, code:"ShiftLeft", ch0:null, f:"pinky"},
+          {leg0:"Z", leg1:null, code:"KeyZ", ch0:"z", f:"pinky"},
+          {leg0:"X", leg1:null, code:"KeyX", ch0:"x", f:"ring"},
+          {leg0:"C", leg1:null, code:"KeyC", ch0:"c", f:"middle"},
+          {leg0:"V", leg1:null, code:"KeyV", ch0:"v", f:"index"},
+          {leg0:"B", leg1:null, code:"KeyB", ch0:"b", f:"index"} ]
+      ];
+      // low band, visual left -> right: bottom row (Ctrl Win Alt) then thumb cluster (かな Space MO(1))
+      var LEFT_LOW = [
+        {leg0:"Ctrl", leg1:null, code:"ControlLeft", ch0:null, f:"pinky"},
+        {leg0:"Win", leg1:null, code:"MetaLeft", ch0:null, f:"pinky"},
+        {leg0:"Alt", leg1:null, code:"AltLeft", ch0:null, f:"ring"},
+        {leg0:"かな", leg1:null, code:"Lang2", ch0:null, f:"thumb", thumb:true},
+        {leg0:"Space", leg1:null, code:"Space", ch0:" ", f:"thumb", thumb:true, space:true},
+        {leg0:"MO(1)", leg1:"MO(1)", code:null, ch0:null, f:"thumb", thumb:true, mo:1}
+      ];
+      var RIGHT = [
+        [ {leg0:"Y", leg1:"6", code:"KeyY", code1:"Digit6", ch0:"y", ch1:"6", f:"index"},
+          {leg0:"U", leg1:"7", code:"KeyU", code1:"Digit7", ch0:"u", ch1:"7", f:"index"},
+          {leg0:"I", leg1:"8", code:"KeyI", code1:"Digit8", ch0:"i", ch1:"8", f:"middle"},
+          {leg0:"O", leg1:"9", code:"KeyO", code1:"Digit9", ch0:"o", ch1:"9", f:"ring"},
+          {leg0:"P", leg1:"0", code:"KeyP", code1:"Digit0", ch0:"p", ch1:"0", f:"pinky"},
+          {leg0:"BS", leg1:"Del", code:"Backspace", code1:"Delete", ch0:null, ch1:null, f:"pinky"} ],
+        [ {leg0:"H", leg1:"=", code:"KeyH", code1:"Equal", ch0:"h", ch1:"=", f:"index"},
+          {leg0:"J", leg1:"'", code:"KeyJ", code1:"Quote", ch0:"j", ch1:"'", f:"index", bump:true},
+          {leg0:"K", leg1:"ろ", code:"KeyK", code1:"IntlRo", ch0:"k", ch1:"ろ", f:"middle"},
+          {leg0:"L", leg1:null, code:"KeyL", ch0:"l", f:"ring"},
+          {leg0:"-", leg1:null, code:"Minus", ch0:"-", f:"pinky"},
+          {leg0:"Enter", leg1:null, code:"Enter", ch0:null, f:"pinky"} ],
+        [ {leg0:"N", leg1:null, code:"KeyN", ch0:"n", f:"index"},
+          {leg0:"M", leg1:null, code:"KeyM", ch0:"m", f:"index"},
+          {leg0:",", leg1:null, code:"Comma", ch0:",", f:"middle"},
+          {leg0:".", leg1:null, code:"Period", ch0:".", f:"ring"},
+          {leg0:"↑", leg1:null, code:"ArrowUp", ch0:null, f:"pinky"},
+          {leg0:"/", leg1:null, code:"Slash", ch0:"/", f:"pinky"} ]
+      ];
+      // low band, visual left -> right: thumb cluster (MO(2) Space 英数) then bottom row (← ↓ →)
+      var RIGHT_LOW = [
+        {leg0:"MO(2)", leg1:null, code:null, ch0:null, f:"thumb", thumb:true, mo:2},
+        {leg0:"Space", leg1:null, code:"Space", ch0:" ", f:"thumb", thumb:true, space:true},
+        {leg0:"英数", leg1:null, code:"Lang1", ch0:null, f:"thumb", thumb:true},
+        {leg0:"←", leg1:null, code:"ArrowLeft", ch0:null, f:"middle"},
+        {leg0:"↓", leg1:null, code:"ArrowDown", ch0:null, f:"ring"},
+        {leg0:"→", leg1:null, code:"ArrowRight", ch0:null, f:"pinky"}
+      ];
+      // column stagger (px, positive = lower). pinky side lower, middle finger column higher.
+      var STAGGER = [11, 5, -4, 0, 4, 8];
+
+      var keyByCode = {}, keyByCode1 = {}, keyByChar = {}, keyByChar1 = {};
+      var keyByCode2 = {}, keyByChar2 = {};
+      var allKeyEls = [], mo1Els = [], mo2Els = [];
+      function pushMap(map, ch, el){ if (!ch) return; (map[ch] = map[ch] || []).push(el); }
+      function buildHalf(rows, low, side, dialTitle){
+        var half = document.createElement("div");
+        half.className = "half " + side;
+        var dial = document.createElement("div"); dial.className = "dial"; dial.title = dialTitle; half.appendChild(dial);
+        var rowsEl = document.createElement("div"); rowsEl.className = "rows";
+        rows.forEach(function(row){
+          var r = document.createElement("div"); r.className = "krow";
+          row.forEach(function(k, ci){
+            r.appendChild(makeKey(k, STAGGER[ci]));
+          });
+          rowsEl.appendChild(r);
+        });
+        half.appendChild(rowsEl);
+        var lr = document.createElement("div"); lr.className = "lowrow";
+        low.forEach(function(k){ lr.appendChild(makeKey(k, 0)); });
+        half.appendChild(lr);
+        return half;
+      }
+      function makeKey(k, stag){
+        var el = document.createElement("div");
+        el.className = "key f-" + k.f + (k.thumb ? " thumbkey" : "") + (k.space ? " spacekey" : "");
+        if (k.empty) el.style.visibility = "hidden";
+        el.style.marginTop = stag + "px";
+        var leg = document.createElement("span");
+        leg.className = "leg" + (k.leg0.length > 3 ? " small" : "");
+        leg.textContent = k.leg0;
+        el.appendChild(leg);
+        if (k.bump){ var b = document.createElement("span"); b.className = "bump"; el.appendChild(b); }
+        el._k = k; el._leg = leg;
+        allKeyEls.push(el);
+        if (k.mo === 1) mo1Els.push(el);
+        if (k.mo === 2) mo2Els.push(el);
+        if (k.code && !keyByCode[k.code]) keyByCode[k.code] = el;
+        if (k.code1 && !keyByCode1[k.code1]) keyByCode1[k.code1] = el;
+        if (k.code2 && !keyByCode2[k.code2]) keyByCode2[k.code2] = el;
+        pushMap(keyByChar, k.ch0, el);
+        // layer 1: explicit ch1, otherwise transparent keys produce their layer 0 char
+        pushMap(keyByChar1, (k.ch1 !== undefined && k.ch1 !== null) ? k.ch1 : k.ch0, el);
+        // layer 2: explicit ch2 only (transparent keys do not add new chars)
+        if (k.ch2 !== undefined && k.ch2 !== null) pushMap(keyByChar2, k.ch2, el);
+        return el;
+      }
+
+      /* ================= .vil (Vial) keymap loading ================= */
+      // 標準キーマップ＝Cornix 純正デフォルト（Jezail Funder 公式ファームウェアの
+      // default_layer / lower_layer / raise_layer）。個人の layout.vil ではない。
+      // 格納形式は従来どおり：行0-3=左（左→右）、行4-7=右（物理の逆順）、7列目=ダイヤル押し込み
+      var DEFAULT_VIL = {
+        layout: [
+          [
+            ["KC_TAB","KC_Q","KC_W","KC_E","KC_R","KC_T",-1],
+            ["KC_LCTRL","KC_A","KC_S","KC_D","KC_F","KC_G",-1],
+            ["KC_LSHIFT","KC_Z","KC_X","KC_C","KC_V","KC_B","KC_CAPS"],
+            [-1,-1,-1,"KC_LGUI","MO(1)","KC_SPACE",-1],
+            ["KC_BSPACE","KC_P","KC_O","KC_I","KC_U","KC_Y",-1],
+            ["KC_QUOTE","KC_SCOLON","KC_L","KC_K","KC_J","KC_H","KC_MUTE"],
+            ["KC_ESCAPE","KC_SLASH","KC_DOT","KC_COMMA","KC_M","KC_N",-1],
+            [-1,-1,-1,"KC_RALT","MO(2)","KC_ENTER",-1]
+          ],
+          [
+            ["KC_TAB","KC_1","KC_2","KC_3","KC_4","KC_5",-1],
+            ["BT_OFF","BT1","BT2","BT3","BT4","BT5",-1],
+            ["KC_LSHIFT","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO"],
+            ["KC_NO","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO",-1],
+            ["KC_BSPACE","KC_0","KC_9","KC_8","KC_7","KC_6",-1],
+            ["KC_NO","KC_NO","KC_RIGHT","KC_UP","KC_DOWN","KC_LEFT","KC_NO"],
+            ["KC_NO","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO",-1],
+            ["KC_NO","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO",-1]
+          ],
+          [
+            ["KC_TAB","KC_EXLM","KC_AT","KC_HASH","KC_DLR","KC_PERC",-1],
+            ["KC_LCTRL","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO",-1],
+            ["KC_LSHIFT","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO"],
+            ["KC_NO","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO",-1],
+            ["KC_BSPACE","KC_RPRN","KC_LPRN","KC_ASTR","KC_AMPR","KC_CIRC",-1],
+            ["KC_GRAVE","KC_BSLASH","KC_RBRACKET","KC_LBRACKET","KC_EQUAL","KC_MINUS","KC_NO"],
+            ["KC_TILD","KC_PIPE","KC_RCBR","KC_LCBR","KC_PLUS","KC_UNDS",-1],
+            ["KC_NO","KC_NO","KC_NO","KC_NO","KC_NO","KC_NO",-1]
+          ]
+        ],
+        encoder_layout: [[["KC_VOLD","KC_VOLU"],["KC_PGUP","KC_PGDOWN"]]]
+      };
+      var VIL_SPECIALS = {
+        "KC_TAB":{leg:"Tab",ch:null,code:"Tab"},
+        "KC_ESCAPE":{leg:"Esc",ch:null,code:"Escape"},
+        "KC_BSPACE":{leg:"BS",ch:null,code:"Backspace"},
+        "KC_DELETE":{leg:"Del",ch:null,code:"Delete"},
+        "KC_ENTER":{leg:"Enter",ch:null,code:"Enter"},
+        "KC_SPACE":{leg:"Space",ch:" ",code:"Space"},
+        "KC_LSHIFT":{leg:"Shift",ch:null,code:"ShiftLeft"},
+        "KC_RSHIFT":{leg:"Shift",ch:null,code:"ShiftRight"},
+        "KC_LCTRL":{leg:"Ctrl",ch:null,code:"ControlLeft"},
+        "KC_LGUI":{leg:"Win",ch:null,code:"MetaLeft"},
+        "KC_LALT":{leg:"Alt",ch:null,code:"AltLeft"},
+        "KC_MINUS":{leg:"-",ch:"-",code:"Minus"},
+        "KC_EQUAL":{leg:"=",ch:"=",code:"Equal"},
+        "KC_SCOLON":{leg:";",ch:";",code:"Semicolon"},
+        "KC_QUOTE":{leg:"'",ch:"'",code:"Quote"},
+        "KC_COMMA":{leg:",",ch:",",code:"Comma"},
+        "KC_DOT":{leg:".",ch:".",code:"Period"},
+        "KC_SLASH":{leg:"/",ch:"/",code:"Slash"},
+        "KC_RO":{leg:"ろ",ch:"ろ",code:"IntlRo"},
+        "KC_LANG1":{leg:"英数",ch:null,code:"Lang1"},
+        "KC_LANG2":{leg:"かな",ch:null,code:"Lang2"},
+        "KC_MUTE":{leg:"ミュート",ch:null,code:null},
+        "KC_BTN3":{leg:"マウス中ボタン",ch:null,code:null},
+        "KC_LEFT":{leg:"←",ch:null,code:"ArrowLeft"},
+        "KC_DOWN":{leg:"↓",ch:null,code:"ArrowDown"},
+        "KC_UP":{leg:"↑",ch:null,code:"ArrowUp"},
+        "KC_RIGHT":{leg:"→",ch:null,code:"ArrowRight"},
+        "KC_CAPS":{leg:"Caps Lock",ch:null,code:"CapsLock"},
+        "KC_CAPSLOCK":{leg:"Caps Lock",ch:null,code:"CapsLock"},
+        "KC_RALT":{leg:"Alt",ch:null,code:"AltRight"},
+        "KC_RGUI":{leg:"Win",ch:null,code:"MetaRight"},
+        "KC_RCTRL":{leg:"Ctrl",ch:null,code:"ControlRight"},
+        "KC_PGUP":{leg:"PgUp",ch:null,code:"PageUp"},
+        "KC_PGDOWN":{leg:"PgDn",ch:null,code:"PageDown"},
+        "KC_PGDN":{leg:"PgDn",ch:null,code:"PageDown"},
+        "KC_LBRACKET":{leg:"[",ch:"[",code:"BracketLeft"},
+        "KC_LBRC":{leg:"[",ch:"[",code:"BracketLeft"},
+        "KC_RBRACKET":{leg:"]",ch:"]",code:"BracketRight"},
+        "KC_RBRC":{leg:"]",ch:"]",code:"BracketRight"},
+        "KC_BSLASH":{leg:"\\",ch:"\\",code:"Backslash"},
+        "KC_BSLS":{leg:"\\",ch:"\\",code:"Backslash"},
+        "KC_GRAVE":{leg:"`",ch:"`",code:"Backquote"},
+        "KC_GRV":{leg:"`",ch:"`",code:"Backquote"},
+        "KC_EXLM":{leg:"!",ch:"!",code:"Digit1"},
+        "KC_AT":{leg:"@",ch:"@",code:"Digit2"},
+        "KC_HASH":{leg:"#",ch:"#",code:"Digit3"},
+        "KC_DLR":{leg:"$",ch:"$",code:"Digit4"},
+        "KC_PERC":{leg:"%",ch:"%",code:"Digit5"},
+        "KC_CIRC":{leg:"^",ch:"^",code:"Digit6"},
+        "KC_AMPR":{leg:"&",ch:"&",code:"Digit7"},
+        "KC_ASTR":{leg:"*",ch:"*",code:"Digit8"},
+        "KC_LPRN":{leg:"(",ch:"(",code:"Digit9"},
+        "KC_RPRN":{leg:")",ch:")",code:"Digit0"},
+        "KC_UNDS":{leg:"_",ch:"_",code:"Minus"},
+        "KC_PLUS":{leg:"+",ch:"+",code:"Equal"},
+        "KC_LCBR":{leg:"{",ch:"{",code:"BracketLeft"},
+        "KC_RCBR":{leg:"}",ch:"}",code:"BracketRight"},
+        "KC_PIPE":{leg:"|",ch:"|",code:"Backslash"},
+        "KC_TILD":{leg:"~",ch:"~",code:"Backquote"}
+      };
+      // Vialキーコード1つ → {leg, ch, code, mo} / {transparent} / {empty}
+      function parseVilKey(raw){
+        if (raw === -1 || raw === null || raw === undefined) return { empty:true, leg:"", ch:null, code:null };
+        if (typeof raw !== "string") return { leg:String(raw), ch:null, code:null };
+        if (raw === "KC_NO") return { transparent:true, leg:null, ch:null, code:null };
+        var m = /^MO\((\d+)\)$/.exec(raw);
+        if (m) return { leg:"MO(" + m[1] + ")", ch:null, code:null, mo:parseInt(m[1], 10) };
+        if (/^KC_[A-Z]$/.test(raw)){ var L = raw.charAt(3); return { leg:L, ch:L.toLowerCase(), code:"Key" + L }; }
+        if (/^KC_[0-9]$/.test(raw)){ var d = raw.charAt(3); return { leg:d, ch:d, code:"Digit" + d }; }
+        var sp = VIL_SPECIALS[raw];
+        if (sp) return { leg:sp.leg, ch:sp.ch, code:sp.code };
+        // 未知のキーコードは KC_ を外してそのまま表示し、入力判定の対象外にする
+        return { leg:raw.replace(/^KC_/, ""), ch:null, code:null };
+      }
+      function isValidVil(data){
+        if (!data || !Array.isArray(data.layout) || data.layout.length < 1) return false;
+        for (var li = 0; li < Math.min(2, data.layout.length); li++){
+          var layer = data.layout[li];
+          if (!Array.isArray(layer) || layer.length < 8) return false;
+          for (var r = 0; r < 8; r++) if (!Array.isArray(layer[r]) || layer[r].length < 6) return false;
+        }
+        return true;
+      }
+      // 格納行 → 物理キー（左→右）のキーコード列。右半分は格納順が物理の逆順なので反転し、先頭（-1／エンコーダ押し込み）を落とす
+      function vilLeftCodes(layer, rowIdx){
+        var row = (layer && layer[rowIdx]) ? layer[rowIdx].slice(0, 6) : [];
+        while (row.length < 6) row.push(-1);
+        return row;
+      }
+      function vilRightCodes(layer, rowIdx){
+        var row = (layer && layer[rowIdx]) ? layer[rowIdx].slice(0, 7).reverse().slice(1) : [];
+        while (row.length < 6) row.push(-1);
+        return row;
+      }
+      function vilPushCode(layer, rowIdx){ // エンコーダ押し込み＝格納行の7列目
+        return (layer && layer[rowIdx] && layer[rowIdx].length > 6) ? layer[rowIdx][6] : null;
+      }
+      // 物理位置テンプレート（指・突起・親指かどうかは位置で決まる）に、各レイヤーのキーコードを合成する
+      function combineVilKey(tpl, raw0, raw1, raw2){
+        var p0 = parseVilKey(raw0), p1 = parseVilKey(raw1), p2 = parseVilKey(raw2);
+        var k = { f:tpl.f, bump:!!tpl.bump, thumb:!!tpl.thumb };
+        if (p0.empty){ k.leg0 = ""; k.ch0 = null; k.code = null; k.empty = true; }
+        else if (p0.transparent){ k.leg0 = ""; k.ch0 = null; k.code = null; }
+        else { k.leg0 = p0.leg; k.ch0 = p0.ch; k.code = p0.code; if (p0.mo != null) k.mo = p0.mo; }
+        if (p1.empty || p1.transparent){
+          // 透過：レイヤー0の文字を薄く表示。MOキーだけはそのまま見せる
+          if (p0.mo != null){ k.leg1 = "MO(" + p0.mo + ")"; k.ch1 = null; k.code1 = null; }
+          else k.leg1 = null; // ch1/code1 は undefined のまま＝レイヤー0にフォールバック
+        } else {
+          k.leg1 = p1.leg; k.ch1 = p1.ch; k.code1 = p1.code;
+          if (p1.mo != null && k.mo == null) k.mo = p1.mo;
+        }
+        // レイヤー2は表示切替の対象外。記号ハイライト解決のためだけに保持する
+        if (p2.empty || p2.transparent){ k.leg2 = null; k.ch2 = null; k.code2 = null; }
+        else {
+          k.leg2 = p2.leg; k.ch2 = p2.ch; k.code2 = p2.code;
+          if (p2.mo != null && k.mo == null) k.mo = p2.mo;
+        }
+        if (raw0 === "KC_SPACE") k.space = true;
+        return k;
+      }
+      function buildRowsFromVil(tplRows, tplLow, codes0, codes1, codes2){
+        codes2 = codes2 || [[],[],[],[]];
+        var rows = tplRows.map(function(tplRow, ri){
+          return tplRow.map(function(tpl, ci){ return combineVilKey(tpl, codes0[ri][ci], codes1[ri] ? codes1[ri][ci] : -1, codes2[ri] ? codes2[ri][ci] : -1); });
+        });
+        var lowCodes0 = codes0[3], lowCodes1 = codes1[3], lowCodes2 = codes2[3];
+        var low = tplLow.map(function(tpl, ci){ return combineVilKey(tpl, lowCodes0[ci], lowCodes1 ? lowCodes1[ci] : -1, lowCodes2 ? lowCodes2[ci] : -1); });
+        return { rows:rows, low:low };
+      }
+      var DIAL_LABELS = { "KC_VOLD":"音量 −", "KC_VOLU":"音量 ＋", "KC_WH_U":"ホイール ↑", "KC_WH_D":"ホイール ↓", "KC_MUTE":"ミュート", "KC_BTN3":"マウス中ボタン", "KC_PGUP":"PageUp", "KC_PGDOWN":"PageDown", "KC_PGDN":"PageDown", "KC_CAPS":"Caps Lock", "KC_CAPSLOCK":"Caps Lock" };
+      function dialLabel(code){
+        if (!code) return "—";
+        return DIAL_LABELS[code] || String(code).replace(/^KC_/, "");
+      }
+      function dialTitle(sideLabel, rotPair, pushRaw){
+        var push = parseVilKey(pushRaw);
+        var pushLeg = push.empty ? "—" : (push.leg || "—");
+        return sideLabel + "：回転＝" + dialLabel(rotPair && rotPair[0]) + " / " + dialLabel(rotPair && rotPair[1]) + "、押し込み＝" + pushLeg;
+      }
+      var kbEl = document.getElementById("keyboard");
+      var currentVil = DEFAULT_VIL, currentVilName = null, currentVilCustom = false;
+      function buildKeyboard(vil){
+        keyByCode = {}; keyByCode1 = {}; keyByChar = {}; keyByChar1 = {};
+        keyByCode2 = {}; keyByChar2 = {};
+        allKeyEls = []; mo1Els = []; mo2Els = [];
+        var l0 = vil.layout[0], l1 = vil.layout[1] || null, l2 = vil.layout[2] || null;
+        var leftCodes0 = [0,1,2,3].map(function(r){ return vilLeftCodes(l0, r); });
+        var leftCodes1 = [0,1,2,3].map(function(r){ return vilLeftCodes(l1, r); });
+        var leftCodes2 = [0,1,2,3].map(function(r){ return vilLeftCodes(l2, r); });
+        var rightCodes0 = [4,5,6,7].map(function(r){ return vilRightCodes(l0, r); });
+        var rightCodes1 = [4,5,6,7].map(function(r){ return vilRightCodes(l1, r); });
+        var rightCodes2 = [4,5,6,7].map(function(r){ return vilRightCodes(l2, r); });
+        var left = buildRowsFromVil(LEFT, LEFT_LOW, leftCodes0, leftCodes1, leftCodes2);
+        var right = buildRowsFromVil(RIGHT, RIGHT_LOW, rightCodes0, rightCodes1, rightCodes2);
+        var enc = (vil.encoder_layout && vil.encoder_layout[0]) || [["KC_VOLD","KC_VOLU"],["KC_PGUP","KC_PGDOWN"]];
+        kbEl.innerHTML = "";
+        kbEl.appendChild(buildHalf(left.rows, left.low, "left", dialTitle("左ダイヤル", enc[0], vilPushCode(l0, 2))));
+        kbEl.appendChild(buildHalf(right.rows, right.low, "right", dialTitle("右ダイヤル", enc[1], vilPushCode(l0, 5))));
+        // 記号ハイライト用：！ はレイヤー1の「1」キー、？ は「/」キーを光らせる
+        if (keyByChar1["1"]) { keyByChar["!"] = keyByChar1["1"]; keyByChar1["!"] = keyByChar1["1"]; }
+        if (keyByChar["/"]) { keyByChar["?"] = keyByChar["/"]; keyByChar1["?"] = keyByChar["/"]; }
+        // レイヤー2のみにある文字（純正デフォルトでは ー＝「-」が H の位置）は
+        // レイヤー0の解決テーブルにも入れておき、描画側で MO(2) も一緒に光らせる
+        Object.keys(keyByChar2).forEach(function(ch){
+          if (!keyByChar[ch]) keyByChar[ch] = keyByChar2[ch].slice();
+          if (!keyByChar1[ch]) keyByChar1[ch] = keyByChar2[ch].slice();
+        });
+        // 数字ハイライト用：数字はレイヤー1のキー（上段 Q=1, W=2, … P=0）を光らせる。
+        // レイヤー0にも数字があるカスタム配列では、両方の位置を光らせる
+        "0123456789".split("").forEach(function(d){
+          if (!keyByChar1[d]) return;
+          var merged = keyByChar1[d].slice();
+          (keyByChar[d] || []).forEach(function(el){ if (merged.indexOf(el) < 0) merged.push(el); });
+          keyByChar[d] = merged;
+        });
+      }
+      /* ---- 保存（localStorage）と適用状態の表示 ---- */
+      var VIL_STORAGE_KEY = "cornix-keymap-vil-v1";
+      var storageOk = true;
+      try { localStorage.setItem(VIL_STORAGE_KEY + "__probe", "1"); localStorage.removeItem(VIL_STORAGE_KEY + "__probe"); }
+      catch (e) { storageOk = false; }
+      var DEFAULT_LAYOUT_NOTE = "表示は Cornix 純正デフォルトです。レイヤー0の右中段に ; と ' があります。MO(1) は左親指、MO(2) は右親指、Space は左親指、Enter は右親指にあります。左ダイヤルは音量（押し込み＝Caps Lock）、右ダイヤルは PageUp/PageDown（押し込み＝ミュート）です。ー（-）はレイヤー2の H の位置にあります。";
+      function updateVilUi(){
+        var st = document.getElementById("vilStatus");
+        st.classList.remove("err");
+        st.textContent = currentVilCustom
+          ? "キーマップ：「" + (currentVilName || "読み込んだファイル") + "」を適用中です。次回開いたときもこの配列で始まります。"
+          : "キーマップ：標準（Cornixデフォルト）を使用中です。";
+        if (!storageOk) document.getElementById("vilStorageNote").textContent = "※この環境ではキーマップを保存できないため、読み込んだ内容はこのページを開いている間だけ適用されます。";
+        var note = document.getElementById("layoutNote");
+        if (!currentVilCustom){ note.textContent = DEFAULT_LAYOUT_NOTE; return; }
+        var l0 = currentVil.layout[0];
+        var lp = parseVilKey(vilPushCode(l0, 2)), rp = parseVilKey(vilPushCode(l0, 5));
+        note.textContent = "表示は読み込んだ .vil のレイヤー0／1です。レイヤー2がある場合は記号のハイライト解決にも使います。レイヤー0〜2に無い文字はハイライトなしで続行します。左ダイヤルの押し込み＝" + (lp.empty ? "—" : lp.leg) + "、右ダイヤルの押し込み＝" + (rp.empty ? "—" : rp.leg) + "です。「Cornixデフォルトに戻す」を押すと純正デフォルトに戻ります。";
+      }
+      function applyVil(vil, name, custom){
+        currentVil = vil; currentVilName = name; currentVilCustom = !!custom;
+        buildKeyboard(vil);
+        if (typeof applyLegends === "function") applyLegends();
+        updateVilUi();
+      }
+      // 保存済みキーマップがあれば復元してから初期表示する
+      (function restoreVil(){
+        if (!storageOk) return;
+        try {
+          var rawSaved = localStorage.getItem(VIL_STORAGE_KEY);
+          if (!rawSaved) return;
+          var saved = JSON.parse(rawSaved);
+          if (saved && saved.data && isValidVil(saved.data)){
+            currentVil = saved.data;
+            currentVilName = saved.name || "読み込んだファイル";
+            currentVilCustom = true;
+          }
+        } catch (e) { /* 保存データが壊れていたら標準で始める */ }
+      })();
+      buildKeyboard(currentVil);
+      updateVilUi();
+
+      /* ---- layer view switching ---- */
+      var viewLayer = 0;
+      function applyLegends(){
+        allKeyEls.forEach(function(el){
+          var k = el._k;
+          if (viewLayer === 1 && k.leg1 === null){
+            el._leg.textContent = k.leg0;
+            el._leg.classList.add("ghost");
+          } else {
+            el._leg.textContent = viewLayer === 1 ? k.leg1 : k.leg0;
+            el._leg.classList.remove("ghost");
+          }
+          el._leg.className = "leg" + (el._leg.textContent.length > 3 ? " small" : "") + (el._leg.classList.contains("ghost") ? " ghost" : "");
+        });
+        $("layer0Btn").setAttribute("aria-pressed", viewLayer === 0 ? "true" : "false");
+        $("layer1Btn").setAttribute("aria-pressed", viewLayer === 1 ? "true" : "false");
+        var note = $("layerNote");
+        note.textContent = viewLayer === 1 ? "レイヤー1表示中：薄い文字は透過（レイヤー0のキーのまま）" : "";
+      }
+      function setLayerView(v){ viewLayer = v; applyLegends(); renderKeyboard(); }
+
+      /* ================= romaji engine ================= */
+      var ROMAJI = {
+        "あ":["a"],"い":["i"],"う":["u"],"え":["e"],"お":["o"],
+        "か":["ka"],"き":["ki"],"く":["ku"],"け":["ke"],"こ":["ko"],
+        "さ":["sa"],"し":["shi","si"],"す":["su"],"せ":["se"],"そ":["so"],
+        "た":["ta"],"ち":["chi","ti"],"つ":["tsu","tu"],"て":["te"],"と":["to"],
+        "な":["na"],"に":["ni"],"ぬ":["nu"],"ね":["ne"],"の":["no"],
+        "は":["ha"],"ひ":["hi"],"ふ":["fu","hu"],"へ":["he"],"ほ":["ho"],
+        "ま":["ma"],"み":["mi"],"む":["mu"],"め":["me"],"も":["mo"],
+        "や":["ya"],"ゆ":["yu"],"よ":["yo"],
+        "ら":["ra"],"り":["ri"],"る":["ru"],"れ":["re"],"ろ":["ro"],
+        "わ":["wa"],"を":["wo"],"ん":["n","nn"],
+        "が":["ga"],"ぎ":["gi"],"ぐ":["gu"],"げ":["ge"],"ご":["go"],
+        "ざ":["za"],"じ":["ji","zi"],"ず":["zu"],"ぜ":["ze"],"ぞ":["zo"],
+        "だ":["da"],"ぢ":["di","ji","zi"],"づ":["du","zu"],"で":["de"],"ど":["do"],
+        "ば":["ba"],"び":["bi"],"ぶ":["bu"],"べ":["be"],"ぼ":["bo"],
+        "ぱ":["pa"],"ぴ":["pi"],"ぷ":["pu"],"ぺ":["pe"],"ぽ":["po"],
+        "きゃ":["kya"],"きゅ":["kyu"],"きょ":["kyo"],
+        "しゃ":["sha","sya"],"しゅ":["shu","syu"],"しょ":["sho","syo"],
+        "ちゃ":["cha","tya","cya"],"ちゅ":["chu","tyu"],"ちょ":["cho","tyo"],
+        "にゃ":["nya"],"にゅ":["nyu"],"にょ":["nyo"],
+        "ひゃ":["hya"],"ひゅ":["hyu"],"ひょ":["hyo"],
+        "みゃ":["mya"],"みゅ":["myu"],"みょ":["myo"],
+        "りゃ":["rya"],"りゅ":["ryu"],"りょ":["ryo"],
+        "ぎゃ":["gya"],"ぎゅ":["gyu"],"ぎょ":["gyo"],
+        "じゃ":["ja","jya","zya"],"じゅ":["ju","jyu"],"じょ":["jo","jyo"],
+        "びゃ":["bya"],"びゅ":["byu"],"びょ":["byo"],
+        "ぴゃ":["pya"],"ぴゅ":["pyu"],"ぴょ":["pyo"],
+        "ぢゃ":["ja","jya","dya"],"ぢゅ":["ju","jyu"],"ぢょ":["jo","jyo"],
+        "しぇ":["she","sye"],"ちぇ":["che","tye","cye"],"じぇ":["je","jye","zye"],
+        "ふぁ":["fa","fua"],"ふぃ":["fi"],"ふぇ":["fe"],"ふぉ":["fo"],
+        "てぃ":["thi"],"でぃ":["dhi"],
+        "うぃ":["wi"],"うぇ":["we"],"うぉ":["wo"],
+        "ぁ":["a","xa","la"],"ぃ":["i","xi","li"],"ぅ":["u","xu","lu"],"ぇ":["e","xe","le"],"ぉ":["o","xo","lo"],
+        "ゃ":["ya","xya"],"ゅ":["yu","xyu"],"ょ":["yo","xyo"],"ゎ":["wa","xwa"],
+        "っ":["xtu","ltu"],
+        "、":[","],"。":["."],"ー":["-"],"！":["!"],"？":["?"]," ":[" "]
+      };
+      function tokenizeKana(s){
+        var tokens = [], i = 0;
+        while (i < s.length){
+          if (s[i] === "っ" && i + 1 < s.length){
+            var nextLen = (ROMAJI[s.substr(i+1,2)] && s[i+2] && "ゃゅょ".indexOf(s[i+2]) >= 0) ? 2 : (ROMAJI[s.substr(i+1,2)] ? 2 : 1);
+            // simpler: try 2-char next mora, else 1-char
+            var nk = null;
+            if (ROMAJI[s.substr(i+1,2)]) { nk = s.substr(i+1,2); nextLen = 2; }
+            else if (ROMAJI[s[i+1]]) { nk = s[i+1]; nextLen = 1; }
+            if (nk){
+              var vars = ROMAJI[nk].map(function(v){
+                var c = v.charAt(0);
+                if ("aiueo".indexOf(c) >= 0) return "xtu" + v;
+                return c + v;
+              });
+              tokens.push({ kana:"っ" + nk, variants: vars, merged:true });
+              i += 1 + nextLen;
+              continue;
+            }
+          }
+          var two = s.substr(i,2);
+          if (two.length === 2 && ROMAJI[two]){ tokens.push({ kana:two, variants:ROMAJI[two] }); i += 2; continue; }
+          var one = s[i];
+          if (ROMAJI[one]){ tokens.push({ kana:one, variants:ROMAJI[one] }); i += 1; continue; }
+          tokens.push({ kana:one, variants:[one] }); i += 1;
+        }
+        return tokens;
+      }
+      // Build all acceptable romaji strings with per-token variant lengths. Cap combinations.
+      function buildAlternatives(kanaStr){
+        var tokens = tokenizeKana(kanaStr);
+        var alts = [{ str:"", lens:[] }];
+        tokens.forEach(function(tok){
+          var next = [];
+          alts.forEach(function(a){
+            tok.variants.forEach(function(v){
+              next.push({ str:a.str + v, lens:a.lens.concat([v.length]) });
+            });
+          });
+          if (next.length > 8192) next = next.slice(0, 8192);
+          alts = next;
+        });
+        var canonical = tokens.map(function(t){ return t.variants[0]; }).join("");
+        return { tokens:tokens, alts:alts, canonical:canonical };
+      }
+
+      /* ================= lesson data ================= */
+      /* ---- お題プール（単語 約330件＋フレーズ・文 約150件） ---- */
+      var JP_WORDS = [
+        /* 食べ物・飲み物 */
+        "りんご","みかん","すいか","いちご","ぶどう","もも","ばなな","なす","きゅうり","とまと","にんじん","たまねぎ","じゃがいも","だいこん","きゃべつ","とうもろこし","しいたけ","ねぎ","ごはん","ぱん","うどん","そば","らーめん","すし","やきとり","からあげ","おにぎり","すーぷ","はんばーぐ","かれー","とうふ","たまご","ちーず","しょうゆ","おちゃ","こーひー","じゅーす","ぎゅうにゅう","けーき","ちょこれーと","かきごおり","べんとう","えび","まぐろ","うなぎ",
+        /* 動物 */
+        "ねこ","いぬ","うさぎ","くま","ぱんだ","ぞう","きりん","らいおん","とら","きつね","しか","うま","うし","ぶた","やぎ","さる","りす","すずめ","はと","つばめ","ふくろう","ぺんぎん","きんぎょ","かめ","かえる","へび","いるか","くじら","とんぼ","ちょう","かぶとむし",
+        /* 自然・天気・植物 */
+        "うみ","やま","かわ","もり","そら","くも","にじ","ほし","つき","たいよう","あめ","ゆき","かぜ","きり","あさひ","ゆうひ","ながれぼし","ちきゅう","しま","たき","みずうみ","いけ","はたけ","さくら","もみじ","まつ","ひまわり","ちゅーりっぷ","ばら","たんぽぽ","あさがお",
+        /* 体 */
+        "あたま","め","みみ","はな","くち","て","かた","うで","ゆび","おなか","せなか","ひざ","あし","かみ","のど","しんぞう","ほね","なみだ",
+        /* 家・生活用品 */
+        "とけい","つくえ","いす","べっど","ふとん","まくら","まど","かぎ","てれび","れいぞうこ","せんたくき","そうじき","えあこん","なべ","さら","すぷーん","こっぷ","せっけん","たおる","かがみ","しゃつ","こーと","せーたー","ぱじゃま","くつ","ぼうし","かさ","かばん","さいふ","めがね","すまーとふぉん","まうす","えんぴつ","けしごむ","はさみ","しんぶん","まんが","ちず","かめら","へっどほん",
+        /* 学校 */
+        "がっこう","せんせい","こくご","りか","えいご","たいいく","おんがく","きゅうしょく","としょかん","ぷーる","しゅくだい","てすと","らんどせる","ぴあにか",
+        /* 仕事・IT */
+        "かいぎ","しごと","ぷろぐらむ","こーど","ばぐ","りりーす","さーばー","でーたべーす","ぱすわーど","あかうんと","めーる","ぷれぜん","しりょう","しめきり","れびゅー","こみっと","けんさく","こうしん","せってい","えらー","ふぁいる","ぶらうざ","りんく","ぼたん","あいこん",
+        /* 場所・乗り物・旅行 */
+        "えき","くうこう","こうえん","びょういん","ぎんこう","すいぞくかん","えいがかん","ほてる","りょかん","おんせん","じんじゃ","おてら","しろ","はし","しんごう","まち","りょこう","きっぷ","よやく","おみやげ","でんしゃ","しんかんせん","ばす","たくしー","ひこうき","ふね","じてんしゃ","くるま",
+        /* スポーツ */
+        "やきゅう","さっかー","てにす","ばすけっとぼーる","たっきゅう","ごるふ","すいえい","からて","すけーと","すきー","らんにんぐ","すとれっち","よが","しあい","れんしゅう","ちーむ","めだる","おうえん","ごーる","ほーむらん","ばっと","ゆにふぉーむ",
+        /* 音楽 */
+        "おんがく","うた","ぴあの","ぎたー","ばいおりん","どらむ","たいこ","めろでぃ","こんさーと","れっすん",
+        /* 季節・行事・時間・様子・挨拶 */
+        "はる","なつ","あき","ふゆ","しょうがつ","はなみ","たなばた","くりすます","おおみそか","たんじょうび","けっこんしき","うんどうかい","えんそく","なつやすみ","しゅうまつ","すいようび","きんようび","にちようび","あさ","ひる","よる","きょう","あした","うれしい","たのしい","かなしい","こわい","ねむい","あつい","さむい","つめたい","あたたかい","あかるい","つよい","おおきい","ちいさい","あたらしい","にぎやか","べんり","むずかしい","やさしい","げんき","ありがとう","おはよう","こんにちは","おやすみ","さようなら","いただきます",
+        /* 動詞 */
+        "あるく","はしる","およぐ","うたう","わらう","なく","ねる","おきる","たべる","のむ","つくる","よむ","かく","きく","はなす","みる","いく","かえる","はたらく","やすむ","あそぶ"
+      ];
+      var JP_PHRASES = [
+        "あさごはんのしたく","ねことのさんぽ","うみべのさんぽ","ほしぞらのかんさつ","あめあがりのにじ","ゆうやけのそら","かぜのつよいひ","ゆきのふるまち","はるのはなみ","なつのうみ","あきのもみじがり","ふゆのおんせん","ともだちとのやくそく","かぞくのしゃしん","にちようびのあさ","まいにちのれんしゅう","あたらしいくつ","おおきなかばん","あたたかいすーぷ","つめたいじゅーす","あまいちょこれーと","ほんをよむじかん","おんがくをきくじかん","えいがをみるよる","りょこうのけいかく","えきまでのみち","こうえんのべんち","かわべのさんぽ","やまのぼりのしたく","きゃんぷのじゅんび","あしたのよてい","きょうのしゅくだい","しごとのしめきり","かいぎのしりょう","ぷろぐらまーのあさ","こーどをかくよる","ばぐをなおすひる","すしをたべるひ","らーめんやのぎょうれつ","ぱんやのあさごはん","さかなやのまぐろ","はなやのばら","ほんやのまんが","でんしゃのまどから","ひこうきのまどから","あさのじょぎんぐ","よるのらんにんぐ","やきゅうのれんしゅう","さっかーのしあい","ぴあののれっすん","ぎたーのれんしゅう","てがみをかくよる","あさのらじおたいそう","ねるまえのどくしょ","おきてすぐのすとれっち"
+      ];
+      var JP_SENTENCES = [
+        "きょうはいいおてんきです。",
+        "あしたはあめがふるかもしれません。",
+        "ねこがにわでひるねをしています。",
+        "いぬとこうえんでさんぽをしました。",
+        "あさごはんにぱんとたまごをたべました。",
+        "こーひーをのみながらほんをよみます。",
+        "ともだちとえいがをみにいきました。",
+        "このほんはとてもおもしろいです！",
+        "あしたのてんきはどうですか？",
+        "すしとみそしるをちゅうもんしました。",
+        "やまのうえからうみがみえます。",
+        "ゆきがふって、まちがしろくなりました。",
+        "はるになるとさくらがさきます。",
+        "なつやすみはかぞくでりょこうします。",
+        "あきのもみじはとてもきれいです！",
+        "ふゆはおんせんにはいるのがたのしみです。",
+        "せんせいがやさしくおしえてくれました。",
+        "がっこうのとしょかんでほんをかりました。",
+        "しゅくだいをおわらせてからあそびます。",
+        "ぴあののれんしゅうをまいにちしています。",
+        "ぎたーをひくのがじょうずになりました。",
+        "きのうのしあいはかちました！",
+        "らいしゅうのてすとにむけてべんきょうしています。",
+        "あたらしいくつをかいました。",
+        "このかばんはかるくてべんりです！",
+        "へやをそうじして、きもちがすっきりしました。",
+        "せんたくものをほしてからでかけます。",
+        "ゆうはんはかれーをつくるよていです。",
+        "らーめんやさんにぎょうれつができています。",
+        "けーきやさんのしょーけーすはどれもおいしそうです！",
+        "あさのいちばはとてもにぎやかです！",
+        "えきまえにあたらしいおみせができました。",
+        "ばすがなかなかこなくてこまりました。",
+        "ひこうきがそらをとんでいきます。",
+        "ふねのたびはゆったりしていてきもちがいいです！",
+        "じてんしゃでかわべをさんぽしました。",
+        "あめのひはうちでゆっくりすごします。",
+        "かぜがつよいので、かさがつかえません。",
+        "たいようがでて、せんたくものがよくかわきました。",
+        "ながれぼしにねがいをかけました。",
+        "つきがまるくてあかるいよるです。",
+        "あさひをみるために、はやくおきました。",
+        "ゆうやけがまちをそめています。",
+        "かみなりがなって、こどもがこわがっています。",
+        "きりがでて、まえがよくみえません。",
+        "てんきよほうでは、あしたははれるそうです。",
+        "しごとのあとに、ともだちとごはんをたべました。",
+        "かいぎであたらしいあいであがでました。",
+        "ぷろぐらむのばぐをやっとみつけました！",
+        "てすとをかいたら、こーどがすっきりしました。",
+        "でーたのほぞんをわすれないでください。",
+        "めーるをかくにんしてからへんしんしました。",
+        "かいぎしつのよやくをとりましたか？",
+        "しめきりまでにしりょうをそろえます。",
+        "ぷれぜんのれんしゅうをなんどもしました。",
+        "あたらしいちーむにさんかしました。",
+        "あさのじょぎんぐがしゅうかんになりました。",
+        "ぷーるでおよぐと、きもちがいいです。",
+        "やきゅうのしあいをおうえんしにいきました。",
+        "さっかーのれんしゅうは、はげしいけれどたのしいです。",
+        "てにすのさーぶがきまるようになりました！",
+        "すきーにいくのがふゆのたのしみです。",
+        "すいえいのたいかいにでるのがもくひょうです。",
+        "よがをすると、からだがかるくなります。",
+        "おんがくをききながらべんきょうします。",
+        "こんさーとでは、すてきなえんそうがきけました。",
+        "うたをうたうと、きぶんがあかるくなります。",
+        "えをかくのがこどものころからすきです。",
+        "しゃしんをとるために、はやおきしました。",
+        "てがみをかいて、ともだちにおくりました。",
+        "にっきをかくのがにっかになりました。",
+        "りょこうのしゃしんをあるばむにまとめました。",
+        "おみやげにせんべいをかってきました。",
+        "ほてるのまどから、よるのまちがみえます。",
+        "おんせんにはいって、つかれがとれました！",
+        "じんじゃでおまいりをしてきました。",
+        "おてらのにわはしずかでおちつきます。",
+        "すいぞくかんでぺんぎんをみました！",
+        "どうぶつえんでぱんだがねていました。",
+        "はなみをしながらおべんとうをたべました。",
+        "たなばたに、たんざくへねがいをかきました。",
+        "おぼんにはかぞくがあつまります。",
+        "くりすますにはけーきをたべます。",
+        "おしょうがつはおせちをたのしみにしています。",
+        "たんじょうびにぷれぜんとをもらいました！",
+        "ぶんかさいのぶたいで、うたをうたいました。",
+        "えんそくのおべんとうは、からあげがはいっていました。",
+        "なつやすみのしゅくだいはおわりましたか？",
+        "あたらしいとしも、げんきにすごしましょう。",
+        "かぜをひいたので、はやくねることにしました。",
+        "やさいをたくさんたべて、げんきでいましょう。",
+        "みずをたくさんのむのは、からだにいいそうです。",
+        "おふろにはいって、あたたまってからねます。",
+        "ねるまえにほんをよむのがすきです。",
+        "あさおきてすぐ、まどをあけます。",
+        "でんしゃのなかで、ほんをよんでいました。",
+        "このえいがはさいごまでわくわくしました！",
+        "あのりょうりはどうやってつくるのですか？",
+        "あなたのしゅみはなんですか？",
+        "こつこつつづけることが、いちばんだいじです。",
+        "しっぱいしても、つぎにいかせばいいのです。",
+        "ゆっくりでも、まえにすすんでいきましょう。",
+        "きょうもいちにち、おつかれさまでした！",
+        "あしたもいいひになりますように。",
+        "つぎのしゅうまつはどこへいきますか？"
+      ];
+      /* ---- 数字入りお題（ステージ3〜5相当にのみ混ぜる：フレーズ15件＋短文14件＋長文10件） ---- */
+      var JP_NUM_STAGE2 = [
+        "たまごを10こ","りんごを3こ","えんぴつ5ほん","3にんのかぞく","5かいだてのびる",
+        "8じ10ぷんのよてい","100えんのあめだま","2500えんのほん","2026ねんのさくら",
+        "365にちのれんしゅう","5きろさきのえき","10ぷんのやすみ","2じかんのどらいぶ",
+        "2026","365"
+      ];
+      var JP_NUM_STAGE3 = [
+        "あさ8じにおきました。",
+        "たまごを10こかいました。",
+        "このほんは2500えんします。",
+        "えきまで5きろあります。",
+        "3にんででかけます。",
+        "かいぎは3かいです。",
+        "ことしは2026ねんです。",
+        "8じかんねむりました。",
+        "きょうは30どでした。",
+        "あと10ぷんでつきます。",
+        "1しゅうかんは7にちです。",
+        "でんしゃは9じ5ふんにきます。",
+        "すしを8こたべました。",
+        "100てんをとりました！"
+      ];
+      var JP_NUM_STAGE4 = [
+        "あしたは8じ10ぷんにえきまえであいましょう。",
+        "かぞく4にんで2026ねんのりょこうをけいかくしています。",
+        "このぱそこんは128000えんでした。",
+        "まらそんたいかいで42きろはしるのがもくひょうです。",
+        "でんわばんごうは、090ではじまる11けたです。",
+        "1ねんで365にち、まいにちこつこつれんしゅうします。",
+        "ほてるは15かいたてで、へやは12かいでした。",
+        "しんかんせんで3じかんはんかけておおさかへいきました。",
+        "こどもは6じにおきて、7じにがっこうへでかけます。",
+        "らいねんの4がつから、あたらしいしごとがはじまります。"
+      ];
+      var NUM_BY_STAGE = { 2: JP_NUM_STAGE2, 3: JP_NUM_STAGE3, 4: JP_NUM_STAGE4 };
+      var NUM_PICKS = { 2: 2, 3: 1, 4: 1 }; // 中盤以降26件中4件≒1.5割が数字入りになる
+      /* ---- 寿司打式：短い単語から長文へ、文字数の階梯で進む1本のストリーム ---- */
+      var STAGE_NAMES = ["短い単語","単語","長い単語・フレーズ","短い文","長めの文"];
+      var STAGE_PICKS = [10, 12, 12, 8, 6]; // 各階梯から重複なく抽選する件数
+      var SMALL_KANA = "ゃゅょぁぃぅぇぉゎ";
+      function effLen(s){ // 記号を除き、捨て仮名を1モーラに数えない実効文字数
+        var t = s.replace(/[、。！？ ]/g, ""), n = 0;
+        for (var i = 0; i < t.length; i++){ if (SMALL_KANA.indexOf(t[i]) >= 0 && i > 0) continue; n++; }
+        return n;
+      }
+      function shuffle(arr){
+        var a = arr.slice();
+        for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+        return a;
+      }
+      function makePrompt(display, stage){
+        var built = buildAlternatives(display);
+        return { display:display, guide:built.canonical, alts:built.alts, tokens:built.tokens, isJP:true, stage:stage };
+      }
+      function buildPrompts(){
+        var seen = {}, pools = [[], [], [], [], []];
+        function addItem(s){
+          if (seen[s]) return; seen[s] = true;
+          var isSentence = /[。！？]/.test(s);
+          var n = effLen(s), st;
+          if (isSentence) st = n <= 16 ? 3 : 4;
+          else st = n <= 3 ? 0 : (n <= 5 ? 1 : 2);
+          pools[st].push(s);
+        }
+        JP_WORDS.forEach(addItem);
+        JP_PHRASES.forEach(addItem);
+        JP_SENTENCES.forEach(addItem);
+        var list = [];
+        pools.forEach(function(pool, st){
+          var picked = shuffle(pool).slice(0, STAGE_PICKS[st]);
+          if (NUM_BY_STAGE[st]){
+            // ステージ総数は変えず、一部を数字入りお題に差し替えてから混ぜ直す
+            var nums = shuffle(NUM_BY_STAGE[st]).slice(0, NUM_PICKS[st]);
+            picked = shuffle(picked.slice(0, STAGE_PICKS[st] - nums.length).concat(nums));
+          }
+          picked.forEach(function(w){ list.push(makePrompt(w, st)); });
+        });
+        return list;
+      }
+
+      /* ================= session state ================= */
+      var state = {
+        timeLimit:0,
+        phase:"idle", // idle | running | done
+        prompts:[], idx:0, typed:"",
+        correct:0, miss:0, totalKeys:0,
+        startAt:0, elapsed:0, timerId:null,
+        doneChars:0, totalChars:0
+      };
+      var $ = function(id){ return document.getElementById(id); };
+      var timeSelect = $("timeSelect");
+
+      function resetSession(){
+        stopTimer();
+        state.phase = "idle";
+        state.prompts = buildPrompts();
+        state.idx = 0; state.typed = "";
+        state.correct = 0; state.miss = 0; state.totalKeys = 0;
+        state.elapsed = 0; state.doneChars = 0;
+        state.totalChars = state.prompts.reduce(function(sum, p){ return sum + p.guide.length; }, 0);
+        $("results").classList.remove("show");
+        renderAll();
+        setStatus('<span class="kbd">Space</span> キーを押すと開始します');
+      }
+      function startSession(){
+        if (state.phase === "running") return;
+        if (state.phase === "done" || state.prompts.length === 0) resetSession();
+        state.phase = "running";
+        state.startAt = Date.now();
+        startTimer();
+        renderAll();
+        setStatus("入力中… 次に光っているキーを押してください");
+      }
+      function finishSession(reason){
+        state.phase = "done";
+        stopTimer();
+        state.elapsed = state.startAt ? (Date.now() - state.startAt) / 1000 : state.elapsed;
+        clearNextHighlight();
+        var total = state.correct + state.miss;
+        var acc = total ? (state.correct / total * 100) : 100;
+        var minutes = state.elapsed / 60;
+        var speed = minutes > 0 ? Math.round(state.correct / minutes) : 0;
+        $("rTotal").textContent = total;
+        $("rCorrect").textContent = state.correct;
+        $("rMiss").textContent = state.miss;
+        $("rAcc").innerHTML = acc.toFixed(1) + "<small>%</small>";
+        $("rTime").textContent = fmtTime(state.elapsed);
+        $("rSpeed").textContent = speed;
+        $("resultSub").textContent = (reason === "time" ? "制限時間終了。" : "お題をすべて打ち終えました。") + "　短い単語から長めの文まで打ち切りました";
+        $("results").classList.add("show");
+        setStatus("おつかれさまでした。もう一度やる場合は <span class=\"kbd\">Space</span> を押してください");
+        $("results").scrollIntoView({ behavior:"smooth", block:"nearest" });
+      }
+      function startTimer(){
+        stopTimer();
+        state.timerId = setInterval(function(){
+          if (state.phase !== "running") return;
+          state.elapsed = (Date.now() - state.startAt) / 1000;
+          if (state.timeLimit > 0 && state.elapsed >= state.timeLimit){ renderStats(); finishSession("time"); return; }
+          renderStats();
+        }, 200);
+      }
+      function stopTimer(){ if (state.timerId){ clearInterval(state.timerId); state.timerId = null; } }
+      function fmtTime(sec){
+        sec = Math.max(0, Math.floor(sec));
+        return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2);
+      }
+
+      /* ================= rendering ================= */
+      function currentPrompt(){ return state.prompts[state.idx] || null; }
+      function matchingAlt(p){
+        for (var i = 0; i < p.alts.length; i++) if (p.alts[i].str.indexOf(state.typed) === 0) return p.alts[i];
+        return p.alts[0];
+      }
+      function nextChars(p){
+        var set = {};
+        p.alts.forEach(function(a){ if (a.str.indexOf(state.typed) === 0 && a.str.length > state.typed.length) set[a.str.charAt(state.typed.length)] = true; });
+        return Object.keys(set);
+      }
+      // how many kana chars are fully typed, and which token is current (for JP)
+      function jpProgress(p){
+        var alt = matchingAlt(p);
+        var pos = 0, doneKana = 0, curToken = -1;
+        for (var ti = 0; ti < p.tokens.length; ti++){
+          var len = alt.lens[ti];
+          if (state.typed.length >= pos + len){ doneKana += p.tokens[ti].kana.length; pos += len; }
+          else { curToken = ti; break; }
+        }
+        if (curToken === -1) curToken = p.tokens.length;
+        return { doneKana:doneKana, curToken:curToken, alt:alt };
+      }
+      function renderAll(){ renderPrompt(); renderStats(); renderKeyboard(); }
+      function renderPrompt(){
+        // (4) 入力済み表示には期待される文字だけを並べる：万一混入した全角文字は描画前に除去
+        if (state.typed) state.typed = state.typed.replace(/[^\x20-\x7E]/g, "");
+        var p = currentPrompt();
+        var main = $("promptMain"), guide = $("promptGuide");
+        main.innerHTML = ""; guide.innerHTML = "";
+        if (!p){ $("promptKind").textContent = ""; $("promptCount").textContent = ""; return; }
+        $("promptKind").textContent = "ステージ " + (p.stage + 1) + " / 5：" + STAGE_NAMES[p.stage];
+        $("promptCount").textContent = state.timeLimit > 0 ? ("お題 " + (state.idx + 1) + " 件目") : ("お題 " + (state.idx + 1) + " / " + state.prompts.length);
+        if (p.isJP){
+          var prog = jpProgress(p);
+          var kanaChars = p.display.split("");
+          kanaChars.forEach(function(ch, i){
+            var s = document.createElement("span"); s.className = "ch"; s.textContent = ch;
+            // find token index of this char
+            var acc = 0, tokIdx = 0;
+            for (var t = 0; t < p.tokens.length; t++){ if (i < acc + p.tokens[t].kana.length){ tokIdx = t; break; } acc += p.tokens[t].kana.length; }
+            if (i < prog.doneKana) s.classList.add("done");
+            else if (tokIdx === prog.curToken) s.classList.add("cur");
+            main.appendChild(s);
+          });
+          // romaji guide: canonical, colored by token completion
+          var gpos = 0;
+          p.tokens.forEach(function(tok, ti){
+            var seg = tok.variants[0];
+            // fraction typed in this token under the matched alternative
+            var alt = prog.alt, start = 0;
+            for (var k = 0; k < ti; k++) start += alt.lens[k];
+            var typedIn = Math.max(0, Math.min(alt.lens[ti], state.typed.length - start));
+            var doneCount = Math.round(seg.length * (alt.lens[ti] ? typedIn / alt.lens[ti] : 0));
+            seg.split("").forEach(function(ch, ci){
+              var s = document.createElement("span"); s.className = "ch"; s.textContent = ch;
+              if (ti < prog.curToken || (ti === prog.curToken && ci < doneCount && state.typed.length >= start + alt.lens[ti])) s.classList.add("done");
+              else if (ti === prog.curToken && ci < doneCount) s.classList.add("done");
+              else if (ti === prog.curToken && ci === doneCount) s.classList.add("cur");
+              if (ti < prog.curToken) s.classList.add("done");
+              guide.appendChild(s);
+            });
+            gpos += seg.length;
+          });
+        }
+        var doneTotal = state.doneChars + state.typed.length;
+        $("progressBar").style.width = state.totalChars ? Math.min(100, doneTotal / state.totalChars * 100) + "%" : "0%";
+      }
+      function renderStats(){
+        var remain = state.timeLimit > 0 && state.phase === "running" ? Math.max(0, state.timeLimit - state.elapsed) : null;
+        $("stTime").textContent = remain !== null ? fmtTime(remain) : fmtTime(state.elapsed);
+        $("stTimeLabel").textContent = remain !== null ? "残り時間" : "経過時間";
+        $("stCorrect").textContent = state.correct;
+        $("stMiss").textContent = state.miss;
+        var total = state.correct + state.miss;
+        $("stAcc").textContent = total ? (state.correct / total * 100).toFixed(1) + "%" : "—";
+        $("stProg").textContent = state.timeLimit > 0 ? (state.idx + 1) + " 件目" : ((state.idx + (state.phase === "done" ? 0 : 1)) + " / " + state.prompts.length);
+        if (state.phase === "done" && state.timeLimit === 0) $("stProg").textContent = state.prompts.length + " / " + state.prompts.length;
+      }
+      function clearNextHighlight(){
+        allKeyEls.forEach(function(el){ el.classList.remove("next"); el.classList.remove("mo-held"); });
+      }
+      function renderKeyboard(){
+        clearNextHighlight();
+        if (state.phase !== "running") return;
+        var p = currentPrompt(); if (!p) return;
+        var ncs = nextChars(p);
+        if (ncs.length){
+          var primary = p.guide.charAt(state.typed.length);
+          if (ncs.indexOf(primary) < 0) primary = ncs[0];
+          // 表示レイヤーに合わせて対応キーを光らせる（Spaceのように複数あるキーは全部光る）
+          // レイヤー0/1で見つからなければレイヤー2も探す（純正デフォルトの ー など）
+          var els = null, fromLayer2 = false;
+          if (viewLayer === 1) els = keyByChar1[primary] || keyByChar[primary] || keyByChar2[primary];
+          else els = keyByChar[primary] || keyByChar2[primary];
+          if (els && keyByChar2[primary] && els === keyByChar2[primary]) fromLayer2 = true;
+          // ー（-）は純正デフォルトではレイヤー2の H にあるので MO(2) 経由として扱う
+          if (primary === "-" && keyByChar2["-"]) { els = keyByChar2["-"]; fromLayer2 = true; }
+          if (els) els.forEach(function(el){ el.classList.add("next"); });
+          // 次キーが数字なら MO(1) キーも一緒に光らせる（レイヤー1の上段キーで打つため）
+          if (/^[0-9]$/.test(primary)) mo1Els.forEach(function(el){ el.classList.add("mo-held"); });
+          // レイヤー2の文字なら MO(2) キーも一緒に光らせる
+          if (fromLayer2) mo2Els.forEach(function(el){ el.classList.add("mo-held"); });
+        }
+      }
+      function setStatus(html){ $("statusLine").innerHTML = html; }
+      function flashKey(el, cls){
+        if (!el) return;
+        el.classList.remove("hit", "err"); void el.offsetWidth; el.classList.add(cls);
+        setTimeout(function(){ el.classList.remove(cls); }, 320);
+      }
+
+      /* ================= input ================= */
+      var IGNORE_CODES = { ShiftLeft:1, ShiftRight:1, ControlLeft:1, ControlRight:1, AltLeft:1, AltRight:1, MetaLeft:1, MetaRight:1, CapsLock:1, Tab:1, Escape:1, Backspace:1, Enter:1, F1:1,F2:1,F3:1,F4:1,F5:1,F6:1,F7:1,F8:1,F9:1,F10:1,F11:1,F12:1 };
+      var imeAlertEl = $("imeAlert");
+      function showImeWarning(){ if (imeAlertEl) imeAlertEl.hidden = false; }
+      function hideImeWarning(){ if (imeAlertEl) imeAlertEl.hidden = true; }
+      function isHalfWidthChar(ch){ return /^[\x20-\x7E]$/.test(ch); }
+      // IME変換が始まったら即座に注意を出す（確定文字が練習入力に混ざらないようにする）
+      document.addEventListener("compositionstart", function(){ showImeWarning(); });
+      document.addEventListener("compositionend", function(){ showImeWarning(); });
+      document.addEventListener("keydown", function(e){
+        // (1) IME変換中・変換確定直前のキーは入力として処理しない（ミスにも数えない）
+        if (e.isComposing === true || e.keyCode === 229 || e.which === 229 || e.key === "Process"){
+          showImeWarning();
+          return;
+        }
+        var tag = (e.target && e.target.tagName) || "";
+        if (tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        // Space: start / restart
+        if (e.code === "Space"){
+          e.preventDefault();
+          if (state.phase === "idle" || state.phase === "done"){ if (state.phase === "done") resetSession(); startSession(); return; }
+          // while running, space is a typing character -> fall through
+          if (state.phase !== "running") return;
+        }
+        if (state.phase !== "running") return;
+        if (IGNORE_CODES[e.code]) { if (e.code === "Tab") e.preventDefault(); return; }
+        var ch = e.key;
+        if (!ch) return;
+        // (3) IMEで確定した文字列（複数文字のひらがな等）は判定せず、入力済みにも混ぜない
+        if (ch.length !== 1){
+          if (/[^\x00-\x7F]/.test(ch)) showImeWarning();
+          return;
+        }
+        // (3) 全角文字・ひらがな等、半角英数・記号・スペース以外は正誤判定しない
+        if (!isHalfWidthChar(ch)){
+          showImeWarning();
+          e.preventDefault();
+          return;
+        }
+        ch = ch.toLowerCase();
+        // ここまで来たら正規の半角入力なので、IME注意は消す
+        hideImeWarning();
+        e.preventDefault();
+        var p = currentPrompt(); if (!p) return;
+        var ncs = nextChars(p);
+        var keyEl = null;
+        if (viewLayer === 1){
+          keyEl = keyByCode1[e.code] || keyByCode[e.code] || keyByCode2[e.code] || (keyByChar1[ch] && keyByChar1[ch][0]) || (keyByChar[ch] && keyByChar[ch][0]) || (keyByChar2[ch] && keyByChar2[ch][0]) || null;
+        } else {
+          keyEl = keyByCode[e.code] || keyByCode2[e.code] || (keyByChar[ch] && keyByChar[ch][0]) || (keyByChar2[ch] && keyByChar2[ch][0]) || null;
+          // ー（-）はレイヤー2の H 位置が正解位置なので、そのキーを光らせる
+          if (ch === "-" && keyByChar2["-"]) keyEl = keyByChar2["-"][0];
+        }
+        state.totalKeys++;
+        if (ncs.indexOf(ch) >= 0){
+          state.typed += ch;
+          state.correct++;
+          flashKey(keyEl, "hit");
+          // completed?
+          var finished = p.alts.some(function(a){ return a.str === state.typed; });
+          if (finished){
+            state.doneChars += p.guide.length;
+            state.idx++;
+            state.typed = "";
+            if (state.idx >= state.prompts.length){
+              if (state.timeLimit > 0){
+                var more = buildPrompts();
+                state.prompts = state.prompts.concat(more);
+                state.totalChars += more.reduce(function(s2, pp){ return s2 + pp.guide.length; }, 0);
+              } else {
+                renderAll();
+                finishSession("clear");
+                return;
+              }
+            }
+          }
+        } else {
+          state.miss++;
+          flashKey(keyEl, "err");
+          var card = $("promptCard");
+          card.classList.remove("flash-bad"); void card.offsetWidth; card.classList.add("flash-bad");
+        }
+        renderAll();
+      });
+
+      /* ================= controls ================= */
+      $("layer0Btn").addEventListener("click", function(){ setLayerView(0); $("layer0Btn").blur(); });
+      $("layer1Btn").addEventListener("click", function(){ setLayerView(1); $("layer1Btn").blur(); });
+      /* ---- .vil 読み込み／標準に戻す ---- */
+      var vilFileInput = $("vilFileInput");
+      vilFileInput.addEventListener("change", function(){
+        var file = vilFileInput.files && vilFileInput.files[0];
+        vilFileInput.blur();
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(){
+          var data = null;
+          try { data = JSON.parse(String(reader.result)); } catch (e) { data = null; }
+          var st = $("vilStatus");
+          if (!isValidVil(data)){
+            st.classList.add("err");
+            st.textContent = "「" + file.name + "」を読み込めませんでした。.vil（VialのレイアウトJSON）ファイルか確認してください。現在のキーマップのままです。";
+            vilFileInput.value = "";
+            return;
+          }
+          applyVil(data, file.name, true);
+          if (storageOk){
+            try { localStorage.setItem(VIL_STORAGE_KEY, JSON.stringify({ name:file.name, data:data })); }
+            catch (e) { storageOk = false; updateVilUi(); }
+          }
+          renderKeyboard();
+          vilFileInput.value = "";
+        };
+        reader.onerror = function(){
+          var st = $("vilStatus");
+          st.classList.add("err");
+          st.textContent = "ファイルの読み込みに失敗しました。現在のキーマップのままです。";
+          vilFileInput.value = "";
+        };
+        reader.readAsText(file);
+      });
+      $("vilResetBtn").addEventListener("click", function(){
+        if (storageOk){ try { localStorage.removeItem(VIL_STORAGE_KEY); } catch (e) {} }
+        applyVil(DEFAULT_VIL, null, false);
+        renderKeyboard();
+        $("vilResetBtn").blur();
+      });
+      timeSelect.addEventListener("change", function(){ state.timeLimit = parseInt(timeSelect.value, 10) || 0; resetSession(); timeSelect.blur(); });
+      $("restartBtn").addEventListener("click", function(){ resetSession(); $("restartBtn").blur(); });
+      $("againBtn").addEventListener("click", function(){ resetSession(); startSession(); $("againBtn").blur(); });
+
+      resetSession();
+    </script>
+  </body>
+</html>
